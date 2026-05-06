@@ -1,5 +1,3 @@
-let currentPage = 0;
-const itemsPerPage = 12;
 let animalData = [];
 let allAnimals = [];
 let ageOptions = [];
@@ -7,6 +5,16 @@ let sexOptions = [];
 let attributeOptions = [];
 let breedOptions = [];
 let sizeOptions = [];
+let currentPage = 0;
+const MAX_ITEMS_PER_PAGE = 12;
+let itemsPerPage = MAX_ITEMS_PER_PAGE;
+
+const computeItemsPerPage = () => {
+    const total = allAnimals.length;
+    if (total === 0) return MAX_ITEMS_PER_PAGE;
+    const numPages = Math.ceil(total / MAX_ITEMS_PER_PAGE);
+    return Math.ceil(total / numPages);
+};
 
 // Helper function to normalize photos to array format
 const normalizePhotos = (photos) => {
@@ -82,6 +90,7 @@ const getAnimals = async () => {
 }
 
 const displayAnimals = () => {
+    itemsPerPage = computeItemsPerPage();
     const container = document.getElementById('animals');
     const start = currentPage * itemsPerPage;
     const end = start + itemsPerPage;
