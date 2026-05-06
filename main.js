@@ -112,7 +112,11 @@ const displayAnimals = () => {
         `;
     }).join('');
 
-    // Scroll container to top when new page loads
+    // Set rows so they always fill the available container height
+    const cols = window.getComputedStyle(container).gridTemplateColumns.split(' ').length;
+    const rows = Math.ceil(pageAnimals.length / cols);
+    container.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
     container.scrollTop = 0;
 }
 
