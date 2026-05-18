@@ -122,9 +122,13 @@ const displayAnimals = () => {
           </div>
         `;
     }).join('');
-
-    container.scrollTop = 0;
 }
+
+const scrollToWidgetTop = () => {
+    const top = document.getElementById('output') ?? document.querySelector('fieldset');
+    top?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
 
 const openAnimalDetail = (publicUrl) => {
     // Open the embed page in a new tab
@@ -156,6 +160,7 @@ const nextPage = () => {
         currentPage++;
         displayAnimals();
         updatePagination();
+        scrollToWidgetTop();
     }
 }
 
@@ -164,6 +169,7 @@ const prevPage = () => {
         currentPage--;
         displayAnimals();
         updatePagination();
+        scrollToWidgetTop();
     }
 }
 
