@@ -9,6 +9,8 @@ let currentPage = 0;
 const MAX_ITEMS_PER_PAGE = 12;
 let itemsPerPage = MAX_ITEMS_PER_PAGE;
 
+const ADOPTION_FEE_REDUCED_BADGE = './badges/adoption-fee-reduced.png';
+
 const computeItemsPerPage = () => {
     const total = allAnimals.length;
     if (total === 0) return MAX_ITEMS_PER_PAGE;
@@ -103,10 +105,19 @@ const displayAnimals = () => {
         // Find the cover photo
         const coverPhoto = photosArray.find(p => p.isCover) || photosArray[0];
         const imageUrl = coverPhoto ? coverPhoto.url : '';
+        const showBadge = animal.attributes?.includes('Adoption Fee Reduced');
+        const badgeHtml = showBadge
+            ? `<img class="animal-card__overlay" src="${ADOPTION_FEE_REDUCED_BADGE}" alt="Adoption fee reduced">`
+            : '';
 
         return `
           <div class="animal-card" onclick="openAnimalDetail('${animal.public_url}', ${animal.nid})">
-            ${imageUrl ? `<img src="${imageUrl}" alt="${animal.name}">` : ''}
+            ${imageUrl ? `
+              <div class="animal-card__image">
+                <img class="animal-card__photo" src="${imageUrl}" alt="${animal.name}">
+                ${badgeHtml}
+              </div>
+            ` : ''}
             <h3>${animal.name}</h3>
           </div>
         `;
