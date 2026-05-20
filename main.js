@@ -10,6 +10,7 @@ const MAX_ITEMS_PER_PAGE = 12;
 let itemsPerPage = MAX_ITEMS_PER_PAGE;
 
 const ADOPTION_FEE_REDUCED_BADGE = './badges/adoption-fee-reduced.png';
+const NEEDS_FOSTER_BADGE = './badges/needs-foster.png';
 
 const computeItemsPerPage = () => {
     const total = allAnimals.length;
@@ -105,10 +106,16 @@ const displayAnimals = () => {
         // Find the cover photo
         const coverPhoto = photosArray.find(p => p.isCover) || photosArray[0];
         const imageUrl = coverPhoto ? coverPhoto.url : '';
-        const showBadge = animal.attributes?.includes('Adoption Fee Reduced');
-        const badgeHtml = showBadge
-            ? `<img class="animal-card__overlay" src="${ADOPTION_FEE_REDUCED_BADGE}" alt="Adoption fee reduced">`
-            : '';
+        const showAdoptionFeeBadge = animal.attributes?.includes('Adoption Fee Reduced');
+        const showFosterBadge = animal.attributes?.includes('Needs Foster');
+        const badgeHtml = [
+            showFosterBadge
+                ? `<img class="animal-card__overlay animal-card__overlay--foster" src="${NEEDS_FOSTER_BADGE}" alt="Needs foster">`
+                : '',
+            showAdoptionFeeBadge
+                ? `<img class="animal-card__overlay animal-card__overlay--adoption-fee" src="${ADOPTION_FEE_REDUCED_BADGE}" alt="Adoption fee reduced">`
+                : '',
+        ].join('');
 
         return `
           <div class="animal-card" onclick="openAnimalDetail('${animal.public_url}', ${animal.nid})">

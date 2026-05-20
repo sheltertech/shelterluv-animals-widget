@@ -49,12 +49,21 @@ fieldset {
 
 .animal-card__overlay {
     position: absolute;
-    bottom: 16px;
-    right: 16px;
-    width: min(50%, 190px);
     height: auto;
     z-index: 1;
     pointer-events: none;
+}
+
+.animal-card__overlay--foster {
+    width: min(50%, 190px);
+    top: 16px;
+    left: -32px;
+}
+
+.animal-card__overlay--adoption-fee {
+    width: min(38%, 130px);
+    bottom: 16px;
+    right: 16px;
 }
 
 .animal-card h3 {
