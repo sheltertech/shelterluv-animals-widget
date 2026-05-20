@@ -49,9 +49,9 @@ fieldset {
 
 .animal-card__overlay {
     position: absolute;
-    bottom: 8px;
-    right: 8px;
-    width: min(55%, 200px);
+    bottom: 16px;
+    right: 16px;
+    width: min(50%, 190px);
     height: auto;
     z-index: 1;
     pointer-events: none;
