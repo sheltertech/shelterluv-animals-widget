@@ -33,6 +33,7 @@ fieldset {
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 4px;
+    container-type: size;
 }
 
 .animal-card__photo {
@@ -54,10 +55,31 @@ fieldset {
     pointer-events: none;
 }
 
+.animal-card__foster-ribbon {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 82cqw;
+    height: 42cqh;
+    overflow: hidden;
+    clip-path: polygon(0 0, 100% 0, 36% 100%, 0 100%);
+    z-index: 2;
+    pointer-events: none;
+}
+
 .animal-card__overlay--foster {
-    width: min(50%, 190px);
-    top: 16px;
-    left: -32px;
+    top: 30cqh;
+    left: -24cqw;
+    width: 88cqw;
+    max-width: none;
+    transform: rotate(-32deg);
+    transform-origin: top left;
+}
+
+.animal-card__overlay--fospice {
+    width: min(58%, 200px);
+    top: 8px;
+    left: 0;
 }
 
 .animal-card__overlay--adoption-fee {

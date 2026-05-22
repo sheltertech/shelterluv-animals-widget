@@ -11,6 +11,7 @@ let itemsPerPage = MAX_ITEMS_PER_PAGE;
 
 const ADOPTION_FEE_REDUCED_BADGE = './badges/adoption-fee-reduced.png';
 const NEEDS_FOSTER_BADGE = './badges/needs-foster.png';
+const FOSPICE_BADGE = './badges/fospice.png';
 
 const computeItemsPerPage = () => {
     const total = allAnimals.length;
@@ -108,9 +109,13 @@ const displayAnimals = () => {
         const imageUrl = coverPhoto ? coverPhoto.url : '';
         const showAdoptionFeeBadge = animal.attributes?.includes('Adoption Fee Reduced');
         const showFosterBadge = animal.attributes?.includes('Needs Foster');
+        const showFospiceBadge = animal.attributes?.includes('Fospice');
         const badgeHtml = [
             showFosterBadge
-                ? `<img class="animal-card__overlay animal-card__overlay--foster" src="${NEEDS_FOSTER_BADGE}" alt="Needs foster">`
+                ? `<div class="animal-card__foster-ribbon"><img class="animal-card__overlay animal-card__overlay--foster" src="${NEEDS_FOSTER_BADGE}" alt="Needs foster"></div>`
+                : '',
+            showFospiceBadge
+                ? `<img class="animal-card__overlay animal-card__overlay--fospice" src="${FOSPICE_BADGE}" alt="Available for fospice">`
                 : '',
             showAdoptionFeeBadge
                 ? `<img class="animal-card__overlay animal-card__overlay--adoption-fee" src="${ADOPTION_FEE_REDUCED_BADGE}" alt="Adoption fee reduced">`
