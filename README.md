@@ -66,6 +66,11 @@ Paste this on your site:
 1. `npm install`
 2. `npm start`
 
+If you are on Windows and the project is under WSL, run these commands from a WSL
+terminal. The `npm start` script resolves `server.js` from the package location
+so it also works when `cmd.exe` cannot use the WSL UNC path as its current
+directory.
+
 Then open:
 
 `http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE`

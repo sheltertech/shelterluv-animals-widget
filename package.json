@@ -8,7 +8,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node -e \"const path = require('path'); const packageJson = process.env.npm_package_json || path.join(process.env.INIT_CWD || process.cwd(), 'package.json'); require(path.join(path.dirname(packageJson), 'server.js'));\""
   },
   "keywords": [],
   "author": "",
