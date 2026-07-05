@@ -63,6 +63,10 @@ Paste this on your site:
 ```
 
 ## Running locally
+
+> **WSL users:** run these commands inside your WSL/Linux terminal (e.g. the Ubuntu app or `wsl` in Windows Terminal), **not** from CMD.EXE or PowerShell.
+> CMD.EXE does not support UNC paths (`\\wsl.localhost\...`) and will default to `C:\Windows`, causing a `Cannot find module` error.
+
 1. `npm install`
 2. `npm start`
 
