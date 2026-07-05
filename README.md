@@ -69,3 +69,25 @@ Paste this on your site:
 Then open:
 
 `http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE`
+
+### WSL on Windows
+
+If your project lives in WSL (for example `/home/tallulah/shelterluv-animals-widget`) but you run `npm start` from **Windows CMD or PowerShell** using a UNC path like `\\wsl.localhost\Ubuntu\...`, Windows cannot use that path as the working directory. CMD falls back to `C:\Windows`, and Node then looks for `C:\Windows\server.js` and fails.
+
+**Recommended:** run the app from inside WSL:
+
+```bash
+cd ~/shelterluv-animals-widget
+npm install
+npm start
+```
+
+In VS Code or Cursor, use **"Reopen Folder in WSL"** (or open the project from the WSL terminal) so the integrated terminal runs in Linux, not Windows.
+
+**Alternatives:**
+- Clone or copy the repo to a Windows path (for example `C:\Users\you\projects\shelterluv-animals-widget`) and run `npm start` there.
+- From Windows CMD, map the UNC path first, then start the server:
+  ```bat
+  pushd \\wsl.localhost\Ubuntu\home\tallulah\shelterluv-animals-widget
+  npm start
+  ```
