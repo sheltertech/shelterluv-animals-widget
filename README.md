@@ -69,3 +69,31 @@ Paste this on your site:
 Then open:
 
 `http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE`
+
+### Windows + WSL troubleshooting
+
+If you see an error like:
+
+- `CMD.EXE was started with the above path as the current directory`
+- `UNC paths are not supported`
+- `Error: Cannot find module 'C:\\Windows\\server.js'`
+
+you launched Node from **Windows cmd.exe** while your project lives in a WSL path (`\\wsl.localhost\...`). `cmd` falls back to `C:\\Windows`, so `node server.js` looks for `C:\\Windows\\server.js`.
+
+Use one of these options instead:
+
+1. Run from WSL (recommended):
+
+```bash
+cd ~/shelterluv-animals-widget
+npm install
+npm start
+```
+
+2. Or start the command through WSL from Windows terminal:
+
+```powershell
+wsl -d Ubuntu bash -lc "cd ~/shelterluv-animals-widget && npm install && npm start"
+```
+
+3. If you must use Windows `cmd`, move/clone the repo to a Windows path (for example `C:\dev\...`) and run it there.
