@@ -69,3 +69,48 @@ Paste this on your site:
 Then open:
 
 `http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE`
+
+### Troubleshooting: WSL + Windows "UNC paths are not supported" error
+
+If you're running this project from a WSL folder (a path like
+`\\wsl.localhost\Ubuntu\home\...` or `\\wsl$\Ubuntu\home\...`) and see an error like:
+
+```
+'\\wsl.localhost\Ubuntu\home\<user>\shelterluv-animals-widget'
+CMD.EXE was started with the above path as the current directory.
+UNC paths are not supported.  Defaulting to Windows directory.
+
+Error: Cannot find module 'C:\Windows\server.js'
+```
+
+this isn't a bug in this project. It means `npm`/`node` are actually being launched using the
+**Windows** installation of Node instead of the one installed inside your WSL distro. Windows'
+`cmd.exe` can't use a UNC path (`\\wsl.localhost\...`) as its working directory, so it silently
+falls back to `C:\Windows`, and `node` then fails to find `server.js` there.
+
+To fix it:
+
+1. Open a **WSL terminal** (e.g. launch `Ubuntu` from the Start menu, or use the WSL terminal
+   profile in Windows Terminal / VS Code) instead of a Windows Command Prompt or PowerShell
+   window that merely has its path set to a `\\wsl.localhost\...` or `\\wsl$\...` folder.
+2. Confirm you're using the Linux versions of Node/npm from inside that WSL terminal:
+   ```bash
+   which node
+   which npm
+   ```
+   These should print paths like `/usr/bin/node` or `~/.nvm/versions/node/...`, **not**
+   `/mnt/c/...`. If they point into `/mnt/c/...`, Node/npm are installed on the Windows side and
+   are being picked up by your WSL `PATH`.
+3. If Node isn't installed inside WSL yet (or is resolving to the Windows copy), install it
+   directly in your Linux distro, for example with
+   [nvm](https://github.com/nvm-sh/nvm):
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+   nvm install --lts
+   ```
+4. Re-run `npm install` and `npm start` from within the WSL terminal, in the project directory
+   (e.g. `cd ~/shelterluv-animals-widget`).
+
+If you're using VS Code, make sure you connect with the **Remote - WSL** extension (or run
+`code .` from inside your WSL shell) so its integrated terminal runs commands inside WSL rather
+than on Windows.
