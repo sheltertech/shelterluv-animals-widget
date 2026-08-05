@@ -142,9 +142,48 @@ const scrollToWidgetTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const openAnimalDetail = (publicUrl) => {
-    // Open the embed page in a new tab
-    window.open(publicUrl, '_blank');
+const isCustomDetailEnabled = () => (
+    new URLSearchParams(window.location.search).get('customDetail') === 'true'
+);
+
+const getUniqueId = (animal) => {
+    if (animal.uniqueId || animal.unique_id) {
+        return animal.uniqueId || animal.unique_id;
+    }
+
+    if (animal.public_url) {
+        try {
+            const pathname = new URL(animal.public_url).pathname;
+            return pathname.split('/').filter(Boolean).pop() || '';
+        } catch {
+            return '';
+        }
+    }
+
+    return animal.animal_id || animal.display_id || animal.id || '';
+};
+
+const openAnimalDetail = (publicUrl, nid) => {
+    if (!isCustomDetailEnabled()) {
+        window.open(publicUrl, '_blank');
+        return;
+    }
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const GID = urlParams.get('GID');
+    const animalType = urlParams.get('animalType');
+    const animal = allAnimals.find((entry) => entry.nid === nid);
+
+    if (animal) {
+        sessionStorage.setItem(`animal-${nid}`, JSON.stringify(animal));
+    }
+
+    const params = new URLSearchParams({ GID, animalType, nid, customDetail: 'true' });
+    const uniqueId = animal ? getUniqueId(animal) : '';
+    if (uniqueId) {
+        params.set('uniqueId', uniqueId);
+    }
+    window.location.href = `./animal-detail.html?${params.toString()}`;
 }
 
 const updatePagination = () => {

@@ -62,10 +62,67 @@ Paste this on your site:
 </div>
 ```
 
+## Custom adoption detail page (feature flag)
+
+By default, clicking an animal opens the Shelterluv public page. To try the custom detail page, add `customDetail=true`:
+
+`https://sheltertech.github.io/shelterluv-animals-widget/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE&customDetail=true`
+
+The detail page shows , key facts, attributes, and description. The **Apply for Adoption** button links to the Shelterluv MatchMe application for that animal.
+
+On GitHub Pages, rich detail data comes from a Cloudflare Worker proxy (see below). Without the Worker, the page falls back to the public list feed / `sessionStorage`.
+
 ## Running locally
+
 1. `npm install`
-2. `npm start`
+2. Copy `.env.example` to `.env` and set your Shelterluv API token:
+
+```bash
+cp .env.example .env
+```
+
+The token is used server-side only via `Authorization: Bearer ...` and is never exposed to the browser.
+
+3. `npm start`
 
 Then open:
 
-`http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE`
+`http://localhost:3000/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE&customDetail=true`
+
+Locally, the detail page loads full animal data through the Express proxy at `/api/v1/animals/:id`.
+
+## Cloudflare Worker (production detail API)
+
+The Worker proxies `GET /api/v1/animals/:id` to Shelterluv with your API token. CORS allows only `https://sheltertech.github.io`.
+
+1. Deploy:
+
+```bash
+npm run deploy:worker
+```
+
+2. Set the secret:
+
+```bash
+npx wrangler secret put SHELTERLUV_API_TOKEN
+```
+
+3. Copy the Worker URL from the deploy output (or the Cloudflare dashboard) into `CLOUDFLARE_DETAIL_API_BASE` at the top of `detail.js`, for example:
+
+```js
+const CLOUDFLARE_DETAIL_API_BASE = 'https://shelterluv-animals-api.YOUR_SUBDOMAIN.workers.dev';
+```
+
+## Shelterluv API
+
+This project uses two Shelterluv endpoints:
+
+- Public list feed (widget): `GET /api/v3/available-animals/{GID}?animalType=...`
+- Authenticated animal details (detail page, via local Express or Cloudflare Worker):
+  - `GET /api/v1/animals/{id}` — single animal details
+
+Authenticated requests require:
+
+```bash
+Authorization: Bearer YOUR_SECRET_TOKEN
+```

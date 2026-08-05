@@ -1,14 +1,19 @@
 {
   "dependencies": {
+    "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "handlebars": "^4.7.8"
+  },
+  "devDependencies": {
+    "wrangler": "^4.20.0"
   },
   "name": "animals-widget",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "deploy:worker": "wrangler deploy"
   },
   "keywords": [],
   "author": "",
