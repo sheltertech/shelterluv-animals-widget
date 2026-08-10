@@ -9,13 +9,17 @@ const getUrlParams = () => {
         nid: params.get('nid'),
         uniqueId: params.get('uniqueId'),
         customDetail: params.get('customDetail'),
+        defaultSort: params.get('defaultSort'),
     };
 };
 
-const getBackUrl = ({ GID, animalType, customDetail }) => {
+const getBackUrl = ({ GID, animalType, customDetail, defaultSort }) => {
     const params = new URLSearchParams({ GID, animalType });
     if (customDetail === 'true') {
         params.set('customDetail', 'true');
+    }
+    if (defaultSort) {
+        params.set('defaultSort', defaultSort);
     }
     return `./animals-widget.html?${params.toString()}`;
 };

@@ -44,10 +44,10 @@
       <label for="sort">Sort</label>
       <select id="sort">
         <option value="">Select Value</option>
-        <option value="shortest-stay">Shortest Stay</option>
-        <option value="longest-stay">Longest Stay</option>
-        <option value="alphabetical-a-z">Alphabetical A-Z</option>
-        <option value="alphabetical-z-a">Alphabetical Z-A</option>
+        <option value="shortest-stay" {{#if sortSelected.shortestStay}}selected{{/if}}>Shortest Stay</option>
+        <option value="longest-stay" {{#if sortSelected.longestStay}}selected{{/if}}>Longest Stay</option>
+        <option value="alphabetical-a-z" {{#if sortSelected.alphabeticalAZ}}selected{{/if}}>Alphabetical A-Z</option>
+        <option value="alphabetical-z-a" {{#if sortSelected.alphabeticalZA}}selected{{/if}}>Alphabetical Z-A</option>
       </select>
     </div>
     <div class="filter">

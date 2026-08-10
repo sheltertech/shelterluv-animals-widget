@@ -13,6 +13,13 @@ const ADOPTION_FEE_REDUCED_BADGE = './badges/adoption-fee-reduced.png';
 const NEEDS_FOSTER_BADGE = './badges/needs-foster.png';
 const FOSPICE_BADGE = './badges/fospice.png';
 
+const DEFAULT_SORT_MAP = {
+    newest: 'shortest-stay',
+    oldest: 'longest-stay',
+    alphabetical: 'alphabetical-a-z',
+    reverseAlphabetical: 'alphabetical-z-a',
+};
+
 const computeItemsPerPage = () => {
     const total = allAnimals.length;
     if (total === 0) return MAX_ITEMS_PER_PAGE;
@@ -36,6 +43,8 @@ const getAnimals = async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const animalType = urlParams.get('animalType');
     const GID = urlParams.get('GID');
+    const defaultSortParam = urlParams.get('defaultSort');
+    const selectedSortValue = DEFAULT_SORT_MAP[defaultSortParam] || '';
 
     try {
         const response = await fetch(`https://new.shelterluv.com/api/v3/available-animals/${GID}?animalType=${animalType}`);
@@ -56,7 +65,13 @@ const getAnimals = async () => {
             sexOptions,
             attributeOptions,
             breedOptions,
-            sizeOptions
+            sizeOptions,
+            sortSelected: {
+                shortestStay: selectedSortValue === 'shortest-stay',
+                longestStay: selectedSortValue === 'longest-stay',
+                alphabeticalAZ: selectedSortValue === 'alphabetical-a-z',
+                alphabeticalZA: selectedSortValue === 'alphabetical-z-a',
+            },
         };
         const html = template(templateData);
         document.getElementById("output").innerHTML = html;
@@ -84,8 +99,12 @@ const getAnimals = async () => {
             select: '#sort'
         })
 
-        displayAnimals();
-        updatePagination();
+        if (selectedSortValue) {
+            filterAnimals();
+        } else {
+            displayAnimals();
+            updatePagination();
+        }
 
     } catch (error) {
         console.error('Error:', error);
@@ -182,6 +201,10 @@ const openAnimalDetail = (publicUrl, nid) => {
     const uniqueId = animal ? getUniqueId(animal) : '';
     if (uniqueId) {
         params.set('uniqueId', uniqueId);
+    }
+    const defaultSort = urlParams.get('defaultSort');
+    if (defaultSort && DEFAULT_SORT_MAP[defaultSort]) {
+        params.set('defaultSort', defaultSort);
     }
     window.location.href = `./animal-detail.html?${params.toString()}`;
 }

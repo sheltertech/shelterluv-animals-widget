@@ -62,6 +62,14 @@ Paste this on your site:
 </div>
 ```
 
+## Optional: default sort
+
+Add `defaultSort` to the embed URL. Allowed values: `newest`, `oldest`, `alphabetical`, `reverseAlphabetical`.
+
+Example (most recent first):
+
+`https://sheltertech.github.io/shelterluv-animals-widget/animals-widget.html?GID=YOUR_GID&animalType=ANIMAL_TYPE&defaultSort=newest`
+
 ## Custom adoption detail page (feature flag)
 
 By default, clicking an animal opens the Shelterluv public page. To try the custom detail page, add `customDetail=true`:
