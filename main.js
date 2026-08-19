@@ -76,27 +76,37 @@ const getAnimals = async () => {
         const html = template(templateData);
         document.getElementById("output").innerHTML = html;
 
+        const slimSelectDefaults = {
+            settings: { modal: 'off' }
+        };
+
         new SlimSelect({
-            select: '#sex'
+            select: '#sex',
+            ...slimSelectDefaults
         });
         new SlimSelect({
-            select: '#age'
+            select: '#age',
+            ...slimSelectDefaults
         });
         new SlimSelect({
             select: '#attributes',
             settings: {
+                ...slimSelectDefaults.settings,
                 allowDeselect: true,
                 closeOnSelect: false
             }
         });
         new SlimSelect({
-            select: '#breed'
+            select: '#breed',
+            ...slimSelectDefaults
         });
         new SlimSelect({
-            select: '#size'
+            select: '#size',
+            ...slimSelectDefaults
         });
         new SlimSelect({
-            select: '#sort'
+            select: '#sort',
+            ...slimSelectDefaults
         })
 
         if (selectedSortValue) {
