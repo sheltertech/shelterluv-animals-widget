@@ -1,3 +1,10 @@
+import Handlebars from 'handlebars';
+import SlimSelect from 'slim-select';
+import 'slim-select/styles';
+import './styles.css';
+import listTemplateSource from './template.hbs?raw';
+import { normalizePhotos, getUniqueId, buildAnimalBadgeHtml, scrollToWidgetTop } from './shared.js';
+
 let animalData = [];
 let allAnimals = [];
 let ageOptions = [];
@@ -9,27 +16,12 @@ let currentPage = 0;
 const MAX_ITEMS_PER_PAGE = 12;
 let itemsPerPage = MAX_ITEMS_PER_PAGE;
 
-const ADOPTION_FEE_REDUCED_BADGE = './badges/adoption-fee-reduced.png';
-const NEEDS_FOSTER_BADGE = './badges/needs-foster.png';
-const FOSPICE_BADGE = './badges/fospice.png';
-
 const computeItemsPerPage = () => {
     const total = allAnimals.length;
     if (total === 0) return MAX_ITEMS_PER_PAGE;
     const numPages = Math.ceil(total / MAX_ITEMS_PER_PAGE);
     return Math.ceil(total / numPages);
 };
-
-// Helper function to normalize photos to array format
-const normalizePhotos = (photos) => {
-    if (Array.isArray(photos)) {
-        return photos;
-    } else if (photos && typeof photos === 'object') {
-        // Convert object to array
-        return Object.values(photos);
-    }
-    return [];
-}
 
 const getAnimals = async () => {
     // Get the query string from the current URL
@@ -46,10 +38,7 @@ const getAnimals = async () => {
 
         populateFilterOptions();
 
-        const templateResponse = await fetch('template.hbs');
-        const source = await templateResponse.text();
-
-        const template = Handlebars.compile(source);
+        const template = Handlebars.compile(listTemplateSource);
         const templateData = {
             allAnimals,
             ageOptions,
@@ -107,20 +96,7 @@ const displayAnimals = () => {
         // Find the cover photo
         const coverPhoto = photosArray.find(p => p.isCover) || photosArray[0];
         const imageUrl = coverPhoto ? coverPhoto.url : '';
-        const showAdoptionFeeBadge = animal.attributes?.includes('Adoption Fee Reduced');
-        const showFosterBadge = animal.attributes?.includes('Needs Foster');
-        const showFospiceBadge = animal.attributes?.includes('Fospice');
-        const badgeHtml = [
-            showFosterBadge
-                ? `<div class="animal-card__foster-ribbon"><img class="animal-card__overlay animal-card__overlay--foster" src="${NEEDS_FOSTER_BADGE}" alt="Needs foster"></div>`
-                : '',
-            showFospiceBadge
-                ? `<img class="animal-card__overlay animal-card__overlay--fospice" src="${FOSPICE_BADGE}" alt="Available for fospice">`
-                : '',
-            showAdoptionFeeBadge
-                ? `<img class="animal-card__overlay animal-card__overlay--adoption-fee" src="${ADOPTION_FEE_REDUCED_BADGE}" alt="Adoption fee reduced">`
-                : '',
-        ].join('');
+        const badgeHtml = buildAnimalBadgeHtml(animal.attributes);
 
         return `
           <div class="animal-card" onclick="openAnimalDetail('${animal.public_url}', ${animal.nid})">
@@ -136,34 +112,13 @@ const displayAnimals = () => {
     }).join('');
 }
 
-const scrollToWidgetTop = () => {
-    const top = document.getElementById('output') ?? document.querySelector('fieldset');
-    top?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
 const isCustomDetailEnabled = () => (
     new URLSearchParams(window.location.search).get('customDetail') === 'true'
 );
 
-const getUniqueId = (animal) => {
-    if (animal.uniqueId || animal.unique_id) {
-        return animal.uniqueId || animal.unique_id;
-    }
-
-    if (animal.public_url) {
-        try {
-            const pathname = new URL(animal.public_url).pathname;
-            return pathname.split('/').filter(Boolean).pop() || '';
-        } catch {
-            return '';
-        }
-    }
-
-    return animal.animal_id || animal.display_id || animal.id || '';
-};
-
 const openAnimalDetail = (publicUrl, nid) => {
+    scrollToWidgetTop();
+
     if (!isCustomDetailEnabled()) {
         window.open(publicUrl, '_blank');
         return;
@@ -225,14 +180,14 @@ const prevPage = () => {
 }
 
 const populateFilterOptions = () => {
-    for (animal of allAnimals) {
+    for (const animal of allAnimals) {
         if (!ageOptions.includes(animal.age_group.name)) {
             ageOptions.push(animal.age_group.name);
         }
         if (!sexOptions.includes(animal.sex)) {
             sexOptions.push(animal.sex);
         }
-        for (attribute of animal.attributes) {
+        for (const attribute of animal.attributes) {
             if (!attributeOptions.includes(attribute)) {
                 attributeOptions.push(attribute);
             }
@@ -364,3 +319,11 @@ const searchByName = (e) => {
     currentPage = 0;
     updatePagination();
 }
+
+// Inline handlers in template.hbs / card HTML need globals (ES modules are scoped).
+Object.assign(window, {
+    openAnimalDetail,
+    prevPage,
+    nextPage,
+    searchByName,
+});

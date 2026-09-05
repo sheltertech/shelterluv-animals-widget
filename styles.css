@@ -1,6 +1,54 @@
+:root {
+    --embed-max-height: 1700px;
+    --embed-see-more-height: 52px;
+}
+
 body {
     margin: 0;
     font-family: Arial, sans-serif;
+    max-height: var(--embed-max-height);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+body.has-embed-see-more {
+    padding-bottom: var(--embed-see-more-height);
+}
+
+body.has-embed-see-more #detail-output {
+    max-height: calc(var(--embed-max-height) - var(--embed-see-more-height));
+    overflow: hidden;
+}
+
+.embed-see-more {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--embed-see-more-height);
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid #ddd;
+    color: #333;
+    font-family: Roboto, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.embed-see-more:hover {
+    background: #f5f5f5;
+}
+
+.embed-see-more[hidden] {
+    display: none !important;
 }
 
 fieldset {
@@ -272,25 +320,42 @@ fieldset {
 }
 
 .animal-detail__back {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     margin-bottom: 20px;
+    padding: 8px 12px 8px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
     color: #333;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    /* Leave room so sticky host headers don't cover the back control after scroll. */
+    scroll-margin-top: 96px;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.animal-detail__back-icon {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
 }
 
 .animal-detail__back:hover {
-    text-decoration: underline;
+    border-color: #bbb;
+    background: #f7f7f7;
 }
 
 .animal-detail__gallery {
     margin-bottom: 28px;
 }
 
-.animal-detail__gallery-main {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
+.animal-detail__gallery-stage {
+    position: relative;
 }
 
 .animal-detail__photo-slot {
@@ -361,15 +426,16 @@ fieldset {
 }
 
 .animal-detail__facts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 24px;
     margin: 0;
 }
 
 .animal-detail__fact {
-    margin: 0 0 14px 0;
-}
-
-.animal-detail__fact:last-child {
-    margin-bottom: 0;
+    flex: 1 1 calc(50% - 12px);
+    margin: 0;
+    min-width: 0;
 }
 
 .animal-detail__fact dt {
@@ -377,6 +443,7 @@ fieldset {
     font-size: 13px;
     font-weight: 700;
     color: #333;
+    text-transform: uppercase;
 }
 
 .animal-detail__fact dd {
@@ -394,78 +461,57 @@ fieldset {
 .animal-detail__cta {
     display: block;
     padding: 14px 18px;
-    border-radius: 2px;
+    border-radius: 4px;
     text-align: center;
     text-decoration: none;
     font-size: 15px;
     font-weight: 700;
+    letter-spacing: 0.04em;
     box-sizing: border-box;
 }
 
 .animal-detail__cta--adopt {
-    background: #8d8d8d;
-    color: #fff;
+    background: oklch(65% .027 264.364);
+    color: #000;
 }
 
 .animal-detail__cta--adopt:hover {
-    background: #777;
+    background: oklch(58% .027 264.364);
 }
 
 .animal-detail__cta--donate {
-    background: #8dc641;
-    color: #fff;
+    background: oklch(62.7% .194 149.214);
+    color: #000;
 }
 
 .animal-detail__cta--donate:hover {
-    background: #7cb535;
+    background: oklch(58% .194 149.214);
 }
 
 .animal-detail__cta--sponsor {
-    background: #5b9bd5;
-    color: #fff;
+    background: oklch(70% .12 245);
+    color: #000;
 }
 
 .animal-detail__cta--sponsor:hover {
-    background: #4a8ac4;
+    background: oklch(64% .12 245);
 }
 
 .animal-detail__social {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 18px;
-    margin-top: 10px;
-    padding-top: 4px;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 4px;
 }
 
-.animal-detail__social-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    border: none;
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+.animal-detail__social .ssk {
+    margin: 0;
 }
 
-.animal-detail__social-button:hover {
-    transform: scale(1.08);
-    opacity: 0.9;
-}
-
-.animal-detail__social-button svg {
-    width: 28px;
-    height: 28px;
-    display: block;
-}
-
-.animal-detail__social-button--copied {
-    transform: scale(1.02);
+.animal-detail__share-copy--copied {
+    opacity: 0.75;
 }
 
 .animal-detail__attributes {
@@ -527,10 +573,6 @@ fieldset {
 @media (max-width: 768px) {
     .animal-detail {
         padding: 16px 16px 32px;
-    }
-
-    .animal-detail__gallery-main {
-        grid-template-columns: 1fr;
     }
 
     .animal-detail__thumbnails {

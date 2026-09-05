@@ -20,6 +20,7 @@ const shelterluvFetch = (apiPath) => {
     });
 };
 
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
 
 app.get('/api/v1/animals/:id', async (req, res) => {

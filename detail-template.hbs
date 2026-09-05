@@ -1,0 +1,132 @@
+<div class="animal-detail">
+  <a class="animal-detail__back" href="{{backUrl}}">
+    <svg class="animal-detail__back-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+    <span>Back</span>
+  </a>
+
+  {{#if hasPhotos}}
+  <div class="animal-detail__gallery">
+    <div class="animal-detail__gallery-stage">
+      <div
+        id="galleryMain"
+        class="splide animal-detail__splide"
+        role="group"
+        aria-label="{{name}} photo gallery"
+      >
+        <div class="splide__track">
+          <ul class="splide__list">
+            {{#each photos}}
+            <li class="splide__slide">
+              <div class="animal-detail__photo-slot">
+                <img class="animal-detail__photo" src="{{url}}" alt="{{../name}} photo {{displayIndex}}">
+              </div>
+            </li>
+            {{/each}}
+          </ul>
+        </div>
+      </div>
+    </div>
+    {{#if hasMultiplePhotos}}
+    <div class="animal-detail__thumbnails" role="group" aria-label="Photo thumbnails">
+      {{#each photos}}
+      <button
+        type="button"
+        class="animal-detail__thumbnail{{#if isActive}} animal-detail__thumbnail--active{{/if}}"
+        data-photo-index="{{index}}"
+        aria-label="Show photo {{displayIndex}}"
+        aria-current="{{#if isActive}}true{{else}}false{{/if}}"
+      >
+        <img src="{{url}}" alt="">
+      </button>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+  {{else}}
+  <div class="animal-detail__gallery animal-detail__gallery--empty">
+    <div class="animal-detail__photo-slot">
+      <div class="animal-detail__photo-placeholder">No photo available</div>
+    </div>
+  </div>
+  {{/if}}
+
+  <div class="animal-detail__header">
+    <div class="animal-detail__info">
+      <h1 class="animal-detail__name">{{name}}</h1>
+      {{#if hasFacts}}
+      <dl class="animal-detail__facts">
+        {{#each facts}}
+        <div class="animal-detail__fact">
+          <dt>{{label}}</dt>
+          <dd>{{value}}</dd>
+        </div>
+        {{/each}}
+      </dl>
+      {{/if}}
+    </div>
+    {{#if hasActions}}
+    <div class="animal-detail__actions">
+      {{#if adoptionUrl}}
+      <a class="animal-detail__cta animal-detail__cta--adopt" href="{{adoptionUrl}}" target="_blank" rel="noopener noreferrer">
+        Apply for Adoption
+      </a>
+      {{/if}}
+      {{#if sponsorUrl}}
+      <a class="animal-detail__cta animal-detail__cta--sponsor" href="{{sponsorUrl}}" target="_blank" rel="noopener noreferrer">
+        Sponsor {{firstName}}
+      </a>
+      {{/if}}
+      {{#if donateUrl}}
+      <a class="animal-detail__cta animal-detail__cta--donate" href="{{donateUrl}}" target="_blank" rel="noopener noreferrer">
+        Donate
+      </a>
+      {{/if}}
+      <div
+        class="ssk-group ssk-round animal-detail__social"
+        data-url="{{shareUrl}}"
+        data-text="{{shareText}}"
+        data-title="{{shareTitle}}"
+      >
+        <a href="" class="ssk ssk-email" title="Share by email" aria-label="Share by email"></a>
+        <a href="" class="ssk ssk-facebook" title="Share on Facebook" aria-label="Share on Facebook"></a>
+        <a href="" class="ssk ssk-twitter" title="Share on Twitter" aria-label="Share on Twitter"></a>
+        <a
+          href=""
+          class="ssk ssk-pinterest"
+          title="Share on Pinterest"
+          aria-label="Share on Pinterest"
+          {{#if coverPhotoUrl}}data-media="{{coverPhotoUrl}}"{{/if}}
+        ></a>
+        <a
+          href="#"
+          class="ssk ssk-link animal-detail__share-copy"
+          title="Copy link"
+          aria-label="Copy link"
+          data-share-url="{{shareUrl}}"
+        ></a>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+
+  {{#if hasAttributes}}
+  <div class="animal-detail__attributes">
+    <h2 class="animal-detail__section-title">Attributes</h2>
+    <ul class="animal-detail__attribute-list">
+      {{#each attributes}}
+      <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </div>
+  {{/if}}
+
+  <div class="animal-detail__description">
+    {{#if description}}
+    <div class="animal-detail__description-body">{{{description}}}</div>
+    {{else}}
+    <p class="animal-detail__description-empty">No description available.</p>
+    {{/if}}
+  </div>
+</div>
