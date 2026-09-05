@@ -334,8 +334,6 @@ fieldset {
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
-    /* Leave room so sticky host headers don't cover the back control after scroll. */
-    scroll-margin-top: 96px;
     transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 

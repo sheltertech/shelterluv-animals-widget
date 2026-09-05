@@ -118,19 +118,21 @@ export const setupSeeMore = ({ href, contentSelector = '#detail-output' } = {}) 
 };
 
 export const scrollToWidgetTop = ({ selector, behavior = 'smooth' } = {}) => {
+  window.scrollTo({ top: 0, left: 0, behavior });
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+
   const top =
     (selector ? document.querySelector(selector) : null)
-    || document.querySelector('.animal-detail__back')
     || document.getElementById('detail-output')
     || document.getElementById('output')
     || document.querySelector('fieldset')
     || document.body;
 
   top?.scrollIntoView({ behavior, block: 'start' });
-  window.scrollTo({ top: 0, behavior });
 };
 
-/** Instant + retries so parent iframe scroll lands high enough to show the back button. */
+/** Instant + retries so parent iframe scroll lands at the top of the widget. */
 export const scrollToWidgetTopReliable = (options = {}) => {
   const run = () => scrollToWidgetTop({ ...options, behavior: 'auto' });
   run();

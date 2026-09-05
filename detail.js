@@ -381,7 +381,7 @@ const renderAnimalDetail = (animal, backUrl, nid) => {
         shareTitle: templateData.shareTitle,
     });
     setupSeeMore({ href: animal.public_url || '' });
-    scrollToWidgetTopReliable({ selector: '.animal-detail__back' });
+    scrollToWidgetTopReliable({ selector: '#detail-output' });
 };
 
 const renderError = (message, backUrl) => {
