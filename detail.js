@@ -6,7 +6,7 @@ import './styles.css';
 import detailTemplateSource from './detail-template.hbs?raw';
 import detailErrorTemplateSource from './detail-error-template.hbs?raw';
 import SocialShareKit from './social-share-kit-client.js';
-import { normalizePhotos, getUniqueId, setupSeeMore, scrollToWidgetTopReliable } from './shared.js';
+import { normalizePhotos, getUniqueId, setupSeeMore } from './shared.js';
 
 const getUrlParams = () => {
     const params = new URLSearchParams(window.location.search);
@@ -16,13 +16,17 @@ const getUrlParams = () => {
         nid: params.get('nid'),
         uniqueId: params.get('uniqueId'),
         customDetail: params.get('customDetail'),
+        defaultSort: params.get('defaultSort'),
     };
 };
 
-const getBackUrl = ({ GID, animalType, customDetail }) => {
+const getBackUrl = ({ GID, animalType, customDetail, defaultSort }) => {
     const params = new URLSearchParams({ GID, animalType });
     if (customDetail === 'true') {
         params.set('customDetail', 'true');
+    }
+    if (defaultSort) {
+        params.set('defaultSort', defaultSort);
     }
     return `./animals-widget.html?${params.toString()}`;
 };
@@ -381,7 +385,6 @@ const renderAnimalDetail = (animal, backUrl, nid) => {
         shareTitle: templateData.shareTitle,
     });
     setupSeeMore({ href: animal.public_url || '' });
-    scrollToWidgetTopReliable({ selector: '#detail-output' });
 };
 
 const renderError = (message, backUrl) => {
@@ -391,7 +394,6 @@ const renderError = (message, backUrl) => {
 const loadAnimalDetail = async () => {
     const params = getUrlParams();
     const backUrl = getBackUrl(params);
-    scrollToWidgetTopReliable();
 
     try {
         await loadTemplates();
