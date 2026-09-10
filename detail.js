@@ -333,7 +333,7 @@ const buildDetailTemplateData = (animal, backUrl, nid) => {
     }));
     const description = getDescription(animal);
     const adoptionUrl = getAdoptionUrl(animal, nid);
-    const shareUrl = window.location.href;
+    const shareUrl = animal.public_url || window.location.href;
     const shareTitle = `${animal.name} is available for adoption`;
     const shareText = getShareText(animal.name, shareUrl);
     const facts = [
