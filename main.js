@@ -44,6 +44,11 @@ const DEFAULT_SORT_ALIASES = {
 
 const resolveDefaultSort = (value) => DEFAULT_SORT_ALIASES[value] || null;
 
+// SlimSelect opens its dropdown as a fullscreen modal below 768px by default.
+// Its dropdown lives on document.body, and absolute placement misaligns when
+// body is a positioned ancestor (standalone mode centers it), so pin to viewport.
+const FILTER_SELECT_SETTINGS = { modal: 'off', contentPosition: 'fixed' };
+
 const computeItemsPerPage = () => {
     const max = maxItemsPerPage();
     const total = allAnimals.length;
@@ -81,31 +86,39 @@ const getAnimals = async () => {
         document.getElementById("output").innerHTML = html;
 
         new SlimSelect({
-            select: '#sex'
+            select: '#sex',
+            settings: { ...FILTER_SELECT_SETTINGS }
         });
         new SlimSelect({
-            select: '#age'
+            select: '#age',
+            settings: { ...FILTER_SELECT_SETTINGS }
         });
         new SlimSelect({
             select: '#attributes',
             settings: {
+                ...FILTER_SELECT_SETTINGS,
                 allowDeselect: true,
                 closeOnSelect: false
             }
         });
         new SlimSelect({
-            select: '#breed'
+            select: '#breed',
+            settings: { ...FILTER_SELECT_SETTINGS }
         });
-        new SlimSelect({
-            select: '#size'
-        });
+        if (sizeOptions.length > 0) {
+            new SlimSelect({
+                select: '#size',
+                settings: { ...FILTER_SELECT_SETTINGS }
+            });
+        }
 
         if (defaultSort) {
             document.getElementById('sort').value = defaultSort;
         }
 
         new SlimSelect({
-            select: '#sort'
+            select: '#sort',
+            settings: { ...FILTER_SELECT_SETTINGS }
         })
 
         if (defaultSort) {
@@ -218,25 +231,23 @@ const prevPage = () => {
     }
 }
 
+// Shelterluv leaves fields empty per species (cats have no weight_group), and a
+// blank option would filter every animal out.
+const addFilterOption = (options, value) => {
+    if (value && !options.includes(value)) {
+        options.push(value);
+    }
+}
+
 const populateFilterOptions = () => {
     for (const animal of allAnimals) {
-        if (!ageOptions.includes(animal.age_group.name)) {
-            ageOptions.push(animal.age_group.name);
+        addFilterOption(ageOptions, animal.age_group?.name);
+        addFilterOption(sexOptions, animal.sex);
+        for (const attribute of animal.attributes || []) {
+            addFilterOption(attributeOptions, attribute);
         }
-        if (!sexOptions.includes(animal.sex)) {
-            sexOptions.push(animal.sex);
-        }
-        for (const attribute of animal.attributes) {
-            if (!attributeOptions.includes(attribute)) {
-                attributeOptions.push(attribute);
-            }
-        }
-        if (!breedOptions.includes(animal.breed)) {
-            breedOptions.push(animal.breed);
-        }
-        if (!sizeOptions.includes(animal.weight_group)) {
-            sizeOptions.push(animal.weight_group);
-        }
+        addFilterOption(breedOptions, animal.breed);
+        addFilterOption(sizeOptions, animal.weight_group);
     }
 }
 
@@ -273,17 +284,18 @@ document.addEventListener('change', (e) => {
     }
 })
 
+// The size filter is absent for species without a weight_group.
+const getSelectedValues = (id) => {
+    const select = document.getElementById(id);
+    return select ? Array.from(select.selectedOptions).map(opt => opt.value) : [];
+}
+
 const filterAnimals = () => {
-    const selectedAttributes = Array.from(document.getElementById('attributes').selectedOptions)
-        .map(opt => opt.value);
-    const selectedSex = Array.from(document.getElementById('sex').selectedOptions)
-        .map(opt => opt.value);
-    const selectedAge = Array.from(document.getElementById('age').selectedOptions)
-        .map(opt => opt.value);
-    const selectedBreed = Array.from(document.getElementById('breed').selectedOptions)
-        .map(opt => opt.value);
-    const selectedSize = Array.from(document.getElementById('size').selectedOptions)
-        .map(opt => opt.value);
+    const selectedAttributes = getSelectedValues('attributes');
+    const selectedSex = getSelectedValues('sex');
+    const selectedAge = getSelectedValues('age');
+    const selectedBreed = getSelectedValues('breed');
+    const selectedSize = getSelectedValues('size');
     const selectedSort = document.getElementById('sort').value;
 
     const currentFilters = {
@@ -302,7 +314,7 @@ const filterAnimals = () => {
         })
         .filter((animal) => {
             if (currentFilters.age.length > 0) {
-                return currentFilters.age.includes(animal.age_group.name)
+                return currentFilters.age.includes(animal.age_group?.name)
             } else return true
         })
         .filter((animal) => {
@@ -318,7 +330,7 @@ const filterAnimals = () => {
         .filter((animal) => {
             if (currentFilters.attributes.length > 0) {
                 return currentFilters.attributes.every(selectedAttr =>
-                    animal.attributes.includes(selectedAttr)
+                    (animal.attributes || []).includes(selectedAttr)
                 );
             } else return true
         })

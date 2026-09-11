@@ -69,6 +69,9 @@ const EMBED_WIDTH_PX = 960;
 // narrow viewports so the content keeps fitting this box.
 const EMBED_HEIGHT_PX = 1048;
 const MOBILE_BREAKPOINT_PX = 768;
+// Matches the padding on html.standalone in styles.css.
+const STANDALONE_PADDING_PX = 16;
+const MIN_STANDALONE_HEIGHT_PX = 480;
 
 export const isEmbedded = () => {
   try {
@@ -95,10 +98,10 @@ const syncEmbedDimensions = () => {
   const isMobile = window.innerWidth <= MOBILE_BREAKPOINT_PX;
   const targetHeight = getConfiguredEmbedHeight() ?? EMBED_HEIGHT_PX;
 
-  // Embedded, stay inside the iframe so the host page never clips us; standalone,
-  // show the full box and let the surrounding page scroll.
+  // Stay inside the viewport either way so nothing clips us: the iframe when
+  // embedded, or the padded grey backdrop when standalone.
   const height = standalone
-    ? targetHeight
+    ? Math.max(MIN_STANDALONE_HEIGHT_PX, Math.min(window.innerHeight - STANDALONE_PADDING_PX * 2, targetHeight))
     : Math.min(window.innerHeight, targetHeight);
 
   const width = isMobile
