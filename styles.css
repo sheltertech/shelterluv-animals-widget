@@ -240,12 +240,6 @@ fieldset {
         box-sizing: border-box;
     }
 
-    .search-box {
-        min-width: 0;
-        max-width: none;
-        width: 100%;
-    }
-
     .animals-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
@@ -313,6 +307,16 @@ fieldset {
 
     /* Smooth transitions */
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Must follow .search-box: media queries add no specificity, so the fixed
+   200px above would otherwise win and overflow the half-width filter cell. */
+@media (max-width: 768px) {
+    .search-box {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+    }
 }
 
 .search-box:focus {
