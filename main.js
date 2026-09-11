@@ -3,7 +3,7 @@ import SlimSelect from 'slim-select';
 import 'slim-select/styles';
 import './styles.css';
 import listTemplateSource from './template.hbs?raw';
-import { normalizePhotos, getUniqueId, buildAnimalBadgeHtml, scrollToWidgetTop, initEmbedMode } from './shared.js';
+import { normalizePhotos, getUniqueId, buildAnimalBadgeHtml, initEmbedMode } from './shared.js';
 
 initEmbedMode();
 
@@ -207,7 +207,6 @@ const nextPage = () => {
         currentPage++;
         displayAnimals();
         updatePagination();
-        scrollToWidgetTop();
     }
 }
 
@@ -216,7 +215,6 @@ const prevPage = () => {
         currentPage--;
         displayAnimals();
         updatePagination();
-        scrollToWidgetTop();
     }
 }
 

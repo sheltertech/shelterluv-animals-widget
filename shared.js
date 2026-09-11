@@ -185,30 +185,6 @@ export const setupSeeMore = ({ href, contentSelector = '#detail-output' } = {}) 
   return update;
 };
 
-export const scrollToWidgetTop = ({ selector, behavior = 'smooth' } = {}) => {
-  window.scrollTo({ top: 0, left: 0, behavior });
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
-
-  const top =
-    (selector ? document.querySelector(selector) : null)
-    || document.getElementById('detail-output')
-    || document.getElementById('output')
-    || document.querySelector('fieldset')
-    || document.body;
-
-  top?.scrollIntoView({ behavior, block: 'start' });
-};
-
-/** Instant + retries so parent iframe scroll lands at the top of the widget. */
-export const scrollToWidgetTopReliable = (options = {}) => {
-  const run = () => scrollToWidgetTop({ ...options, behavior: 'auto' });
-  run();
-  requestAnimationFrame(run);
-  window.setTimeout(run, 100);
-  window.setTimeout(run, 300);
-};
-
 export const buildAnimalBadgeHtml = (attributes = []) => {
   const {
     showFosterBadge,
