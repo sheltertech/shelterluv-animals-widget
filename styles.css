@@ -417,6 +417,8 @@ fieldset {
 
 .animal-detail__photo-slot {
     aspect-ratio: 1 / 1;
+    /* Caps the square on wide columns so the description keeps its room. */
+    max-height: 200px;
     overflow: hidden;
     background: #f5f5f5;
 }
@@ -447,8 +449,8 @@ fieldset {
 }
 
 .animal-detail__thumbnail {
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     padding: 0;
     border: 2px solid transparent;
     overflow: hidden;
@@ -527,6 +529,12 @@ fieldset {
     box-sizing: border-box;
 }
 
+/* The short labels take over at the mobile breakpoint, where the CTAs share
+   one row and the full wording would wrap. */
+.animal-detail__cta-short {
+    display: none;
+}
+
 .animal-detail__cta--adopt {
     background: oklch(65% .027 264.364);
     color: #000;
@@ -572,7 +580,7 @@ fieldset {
 }
 
 .animal-detail__attributes {
-    margin-bottom: 28px;
+    margin-top: 28px;
 }
 
 .animal-detail__section-title {
@@ -616,12 +624,6 @@ fieldset {
     margin: 0 0 1em 0;
 }
 
-.animal-detail__description-empty {
-    margin: 0;
-    color: #666;
-    font-size: 15px;
-}
-
 .animal-detail__error {
     color: #666;
     font-size: 16px;
@@ -629,24 +631,100 @@ fieldset {
 
 @media (max-width: 768px) {
     .animal-detail {
-        padding: 16px 16px 32px;
+        padding: 12px 12px 20px;
+    }
+
+    .animal-detail__back {
+        margin-bottom: 12px;
+        padding: 6px 10px 6px 6px;
+    }
+
+    .animal-detail__gallery {
+        margin-bottom: 16px;
     }
 
     .animal-detail__thumbnails {
         justify-content: flex-start;
+        margin-top: 8px;
     }
 
     .animal-detail__header {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 14px;
+        margin-bottom: 18px;
     }
 
     .animal-detail__name {
-        font-size: 24px;
+        margin-bottom: 12px;
+        font-size: 20px;
     }
 
+    .animal-detail__facts {
+        gap: 10px 16px;
+    }
+
+    .animal-detail__fact dt {
+        font-size: 11px;
+    }
+
+    .animal-detail__fact dd {
+        font-size: 13px;
+    }
+
+    /* The actions stack below the facts here, so every pixel comes off the
+       description's room: one row of CTAs, one row of share links. */
     .animal-detail__actions {
         width: 100%;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .animal-detail__cta {
+        flex: 1 1 0;
+        padding: 10px 8px;
+        font-size: 13px;
+    }
+
+    .animal-detail__cta-full {
+        display: none;
+    }
+
+    .animal-detail__cta-short {
+        display: inline;
+    }
+
+    .animal-detail__social {
+        flex: 1 0 100%;
+        margin-top: 0;
+    }
+
+    .animal-detail__social .ssk {
+        padding: 5px;
+    }
+
+    .animal-detail__social .ssk:before {
+        font-size: 16px;
+    }
+
+    /* Dogs can carry 18 attributes, so the chips wrap into many rows here. */
+    .animal-detail__attributes {
+        margin-top: 16px;
+    }
+
+    .animal-detail__section-title {
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+
+    .animal-detail__attribute-list {
+        gap: 6px 8px;
+    }
+
+    .animal-detail__attribute-list li {
+        padding: 5px 10px 5px 14px;
+        font-size: 11px;
+        clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%);
     }
 }
 

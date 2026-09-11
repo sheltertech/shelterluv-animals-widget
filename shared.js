@@ -68,7 +68,7 @@ const EMBED_WIDTH_PX = 960;
 // One embed height for every breakpoint: main.js drops the cards per page on
 // narrow viewports so the content keeps fitting this box.
 const EMBED_HEIGHT_PX = 1048;
-const MOBILE_BREAKPOINT_PX = 768;
+export const MOBILE_BREAKPOINT_PX = 768;
 // Matches the padding on html.standalone in styles.css.
 const STANDALONE_PADDING_PX = 16;
 const MIN_STANDALONE_HEIGHT_PX = 480;

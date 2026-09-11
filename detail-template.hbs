@@ -70,12 +70,14 @@
     <div class="animal-detail__actions">
       {{#if adoptionUrl}}
       <a class="animal-detail__cta animal-detail__cta--adopt" href="{{adoptionUrl}}" target="_blank" rel="noopener noreferrer">
-        Apply for Adoption
+        <span class="animal-detail__cta-full">Apply for Adoption</span>
+        <span class="animal-detail__cta-short">Apply</span>
       </a>
       {{/if}}
       {{#if sponsorUrl}}
       <a class="animal-detail__cta animal-detail__cta--sponsor" href="{{sponsorUrl}}" target="_blank" rel="noopener noreferrer">
-        Sponsor {{firstName}}
+        <span class="animal-detail__cta-full">Sponsor {{firstName}}</span>
+        <span class="animal-detail__cta-short">Sponsor</span>
       </a>
       {{/if}}
       {{#if donateUrl}}
@@ -111,6 +113,13 @@
     {{/if}}
   </div>
 
+  {{#if description}}
+  <div class="animal-detail__description">
+    <h2 class="animal-detail__section-title">About {{name}}</h2>
+    <div class="animal-detail__description-body">{{{description}}}</div>
+  </div>
+  {{/if}}
+
   {{#if hasAttributes}}
   <div class="animal-detail__attributes">
     <h2 class="animal-detail__section-title">Attributes</h2>
@@ -121,12 +130,4 @@
     </ul>
   </div>
   {{/if}}
-
-  <div class="animal-detail__description">
-    {{#if description}}
-    <div class="animal-detail__description-body">{{{description}}}</div>
-    {{else}}
-    <p class="animal-detail__description-empty">No description available.</p>
-    {{/if}}
-  </div>
 </div>

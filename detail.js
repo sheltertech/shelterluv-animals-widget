@@ -6,7 +6,13 @@ import './styles.css';
 import detailTemplateSource from './detail-template.hbs?raw';
 import detailErrorTemplateSource from './detail-error-template.hbs?raw';
 import SocialShareKit from './social-share-kit-client.js';
-import { normalizePhotos, getUniqueId, setupSeeMore, initEmbedMode } from './shared.js';
+import {
+    normalizePhotos,
+    getUniqueId,
+    setupSeeMore,
+    initEmbedMode,
+    MOBILE_BREAKPOINT_PX,
+} from './shared.js';
 
 initEmbedMode();
 
@@ -282,6 +288,21 @@ const syncGalleryThumbnails = (thumbnails, index) => {
     });
 };
 
+// Narrow columns keep the square photo slots short, leaving room for the
+// description inside the fixed embed height.
+const GALLERY_PER_PAGE = 4;
+const GALLERY_PER_PAGE_MOBILE = 2;
+// Six 48px thumbnails plus gaps fit one row on a phone; more would wrap and
+// eat the description's space.
+const GALLERY_MAX_PHOTOS_MOBILE = 6;
+
+const getGalleryPhotos = (animal) => {
+    const photos = normalizePhotos(animal.photos);
+    return window.innerWidth <= MOBILE_BREAKPOINT_PX
+        ? photos.slice(0, GALLERY_MAX_PHOTOS_MOBILE)
+        : photos;
+};
+
 const initGallery = (photos) => {
     const root = document.getElementById('galleryMain');
     if (!root || photos.length === 0) {
@@ -293,8 +314,8 @@ const initGallery = (photos) => {
 
     const splide = new Splide(root, {
         type: hasMultiple ? 'loop' : 'slide',
-        // Keep a single photo the same size as one slot in the 3-up gallery.
-        perPage: photos.length === 1 ? 3 : Math.min(3, photos.length),
+        // Keep a single photo the same size as one slot in the full gallery.
+        perPage: photos.length === 1 ? GALLERY_PER_PAGE : Math.min(GALLERY_PER_PAGE, photos.length),
         perMove: 1,
         gap: '8px',
         pagination: false,
@@ -304,7 +325,9 @@ const initGallery = (photos) => {
         updateOnMove: true,
         breakpoints: {
             768: {
-                perPage: 1,
+                perPage: photos.length === 1
+                    ? GALLERY_PER_PAGE_MOBILE
+                    : Math.min(GALLERY_PER_PAGE_MOBILE, photos.length),
             },
         },
         i18n: {
@@ -332,7 +355,7 @@ const initGallery = (photos) => {
 };
 
 const buildDetailTemplateData = (animal, backUrl, nid) => {
-    const photos = normalizePhotos(animal.photos).map((photo, index) => ({
+    const photos = getGalleryPhotos(animal).map((photo, index) => ({
         ...photo,
         index,
         displayIndex: index + 1,
@@ -377,7 +400,7 @@ const buildDetailTemplateData = (animal, backUrl, nid) => {
 };
 
 const renderAnimalDetail = (animal, backUrl, nid) => {
-    const photos = normalizePhotos(animal.photos);
+    const photos = getGalleryPhotos(animal);
     const templateData = buildDetailTemplateData(animal, backUrl, nid);
     document.title = `${animal.name} - Available for Adoption`;
     document.getElementById('detail-output').innerHTML = detailTemplate(templateData);
