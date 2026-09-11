@@ -6,7 +6,9 @@ import './styles.css';
 import detailTemplateSource from './detail-template.hbs?raw';
 import detailErrorTemplateSource from './detail-error-template.hbs?raw';
 import SocialShareKit from './social-share-kit-client.js';
-import { normalizePhotos, getUniqueId, setupSeeMore } from './shared.js';
+import { normalizePhotos, getUniqueId, setupSeeMore, initEmbedMode } from './shared.js';
+
+initEmbedMode();
 
 const getUrlParams = () => {
     const params = new URLSearchParams(window.location.search);
@@ -291,7 +293,8 @@ const initGallery = (photos) => {
 
     const splide = new Splide(root, {
         type: hasMultiple ? 'loop' : 'slide',
-        perPage: Math.min(3, photos.length),
+        // Keep a single photo the same size as one slot in the 3-up gallery.
+        perPage: photos.length === 1 ? 3 : Math.min(3, photos.length),
         perMove: 1,
         gap: '8px',
         pagination: false,

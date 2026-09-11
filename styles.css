@@ -1,14 +1,51 @@
 :root {
-    --embed-max-height: 1700px;
+    --embed-max-width: 960px;
+    --embed-max-height: 1048px;
     --embed-see-more-height: 52px;
+}
+
+html.in-iframe {
+    height: var(--embed-max-height);
+    overflow: hidden;
+}
+
+html.in-iframe body {
+    height: var(--embed-max-height);
+    max-height: var(--embed-max-height);
 }
 
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    max-height: var(--embed-max-height);
     overflow: hidden;
     box-sizing: border-box;
+}
+
+html.standalone {
+    min-height: 100vh;
+    background: #e8e8e8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+html.standalone body {
+    position: relative;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: var(--embed-max-width);
+    height: var(--embed-max-height);
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+}
+
+html.standalone .embed-see-more {
+    position: absolute;
+    left: 0;
+    right: 0;
 }
 
 body.has-embed-see-more {
@@ -175,8 +212,8 @@ fieldset {
     text-align: center;
 }
 
-/* Tablet (3 columns) */
-@media (max-width: 1024px) {
+/* Tablet (3 columns) — below the 960px embed width so embeds keep 4 columns */
+@media (max-width: 900px) {
     .animals-container {
         grid-template-columns: repeat(3, 1fr);
         gap: 15px;
@@ -190,6 +227,25 @@ fieldset {
 
 /* Small tablet / large phone (2 columns) */
 @media (max-width: 768px) {
+    fieldset {
+        padding: 8px 10px 0;
+        gap: 0;
+    }
+
+    .filter {
+        min-width: 0;
+        max-width: none;
+        flex: 1 1 calc(50% - 8px);
+        padding: 8px 8px 0 0;
+        box-sizing: border-box;
+    }
+
+    .search-box {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+    }
+
     .animals-container {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
@@ -212,22 +268,21 @@ fieldset {
     }
 }
 
-/* Mobile (1 column) */
+/* Mobile — stays at 2 columns so the embed keeps its desktop height */
 @media (max-width: 480px) {
     .animals-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 10px;
         padding: 10px;
         max-height: none;
     }
 
     .animal-card {
-        max-width: 400px;
-        margin: 0 auto;
+        max-width: none;
+        margin: 0;
     }
 
     .animal-card h3 {
-        font-size: 16px;
+        font-size: 13px;
     }
 
     .pagination {

@@ -64,12 +64,80 @@ export const getAnimalBadges = (attributes = []) => {
   };
 };
 
+const EMBED_WIDTH_PX = 960;
+// One embed height for every breakpoint: main.js drops the cards per page on
+// narrow viewports so the content keeps fitting this box.
+const EMBED_HEIGHT_PX = 1048;
+const MOBILE_BREAKPOINT_PX = 768;
+
+export const isEmbedded = () => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+};
+
+const getConfiguredEmbedHeight = () => {
+  const param = new URLSearchParams(window.location.search).get('embedHeight');
+  if (param) {
+    const parsed = Number.parseInt(param, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      return parsed;
+    }
+  }
+
+  return null;
+};
+
+const syncEmbedDimensions = () => {
+  const standalone = document.documentElement.classList.contains('standalone');
+  const isMobile = window.innerWidth <= MOBILE_BREAKPOINT_PX;
+  const targetHeight = getConfiguredEmbedHeight() ?? EMBED_HEIGHT_PX;
+
+  // Embedded, stay inside the iframe so the host page never clips us; standalone,
+  // show the full box and let the surrounding page scroll.
+  const height = standalone
+    ? targetHeight
+    : Math.min(window.innerHeight, targetHeight);
+
+  const width = isMobile
+    ? `${Math.max(280, window.innerWidth)}px`
+    : `${EMBED_WIDTH_PX}px`;
+
+  document.documentElement.style.setProperty('--embed-max-height', `${height}px`);
+  document.documentElement.style.setProperty('--embed-max-width', width);
+};
+
+export const initEmbedMode = () => {
+  const embedded = isEmbedded();
+
+  const updateModeClasses = () => {
+    document.documentElement.classList.toggle('in-iframe', embedded);
+    document.documentElement.classList.toggle('standalone', !embedded);
+    document.documentElement.classList.toggle(
+      'is-mobile-embed',
+      window.innerWidth <= MOBILE_BREAKPOINT_PX,
+    );
+  };
+
+  const onViewportChange = () => {
+    updateModeClasses();
+    syncEmbedDimensions();
+  };
+
+  updateModeClasses();
+  syncEmbedDimensions();
+  window.addEventListener('resize', onViewportChange);
+  window.visualViewport?.addEventListener('resize', onViewportChange);
+};
+
 const getEmbedMaxHeightPx = () => {
   const raw = getComputedStyle(document.documentElement)
     .getPropertyValue('--embed-max-height')
     .trim();
   const parsed = Number.parseFloat(raw);
-  return Number.isFinite(parsed) ? parsed : 1700;
+  return Number.isFinite(parsed) ? parsed : EMBED_HEIGHT_PX;
 };
 
 export const setupSeeMore = ({ href, contentSelector = '#detail-output' } = {}) => {

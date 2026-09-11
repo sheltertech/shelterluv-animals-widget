@@ -3,7 +3,9 @@ import SlimSelect from 'slim-select';
 import 'slim-select/styles';
 import './styles.css';
 import listTemplateSource from './template.hbs?raw';
-import { normalizePhotos, getUniqueId, buildAnimalBadgeHtml, scrollToWidgetTop } from './shared.js';
+import { normalizePhotos, getUniqueId, buildAnimalBadgeHtml, scrollToWidgetTop, initEmbedMode } from './shared.js';
+
+initEmbedMode();
 
 let animalData = [];
 let allAnimals = [];
@@ -13,8 +15,20 @@ let attributeOptions = [];
 let breedOptions = [];
 let sizeOptions = [];
 let currentPage = 0;
+// Cards per page per breakpoint, so every viewport fits the same embed height.
+// Mirrors the grid columns in styles.css: 4 cols x 3 rows, 3 x 3, then 2 x 2.
+const ITEMS_PER_PAGE_BY_WIDTH = [
+    { maxWidth: 768, items: 4 },
+    { maxWidth: 900, items: 9 },
+];
 const MAX_ITEMS_PER_PAGE = 12;
-let itemsPerPage = MAX_ITEMS_PER_PAGE;
+
+const maxItemsPerPage = () => (
+    ITEMS_PER_PAGE_BY_WIDTH.find(({ maxWidth }) => window.innerWidth <= maxWidth)?.items
+    || MAX_ITEMS_PER_PAGE
+);
+
+let itemsPerPage = maxItemsPerPage();
 
 // Shelterluv aliases → local #sort option values
 const DEFAULT_SORT_ALIASES = {
@@ -31,9 +45,10 @@ const DEFAULT_SORT_ALIASES = {
 const resolveDefaultSort = (value) => DEFAULT_SORT_ALIASES[value] || null;
 
 const computeItemsPerPage = () => {
+    const max = maxItemsPerPage();
     const total = allAnimals.length;
-    if (total === 0) return MAX_ITEMS_PER_PAGE;
-    const numPages = Math.ceil(total / MAX_ITEMS_PER_PAGE);
+    if (total === 0) return max;
+    const numPages = Math.ceil(total / max);
     return Math.ceil(total / numPages);
 };
 
@@ -229,6 +244,27 @@ const populateFilterOptions = () => {
 
 // Load animals on initial load
 getAnimals();
+
+// Re-paginate when the viewport crosses a breakpoint, keeping the first
+// visible animal on screen.
+let lastMaxItemsPerPage = maxItemsPerPage();
+let resizeTimer;
+window.addEventListener('resize', () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(() => {
+        const max = maxItemsPerPage();
+        if (max === lastMaxItemsPerPage || allAnimals.length === 0) return;
+        lastMaxItemsPerPage = max;
+
+        const firstVisibleIndex = currentPage * itemsPerPage;
+        itemsPerPage = computeItemsPerPage();
+        const totalPages = Math.max(1, Math.ceil(allAnimals.length / itemsPerPage));
+        currentPage = Math.min(Math.floor(firstVisibleIndex / itemsPerPage), totalPages - 1);
+
+        displayAnimals();
+        updatePagination();
+    }, 150);
+});
 
 document.addEventListener('change', (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions).map(opt => opt.value);
