@@ -356,6 +356,20 @@ const initPhotoSwipe = (photos, animalName) => {
         })),
         pswpModule: PhotoSwipe,
         bgClickAction: 'close',
+        // Embed iframe is ~1048px tall; center would sit below a phone's visible area.
+        // Keep the slide area in the top portion of the iframe so the image is on-screen.
+        paddingFn: (viewportSize) => {
+            const visibleHeight = Math.min(
+                viewportSize.y,
+                Math.round((window.screen?.height || 700) * 0.75)
+            );
+            return {
+                top: 0,
+                bottom: Math.max(0, viewportSize.y - visibleHeight),
+                left: 0,
+                right: 0,
+            };
+        },
         tapAction: (point, event) => {
             if (event.target.classList.contains('pswp__img')) {
                 return;
