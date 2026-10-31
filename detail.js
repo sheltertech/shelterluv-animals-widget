@@ -294,7 +294,8 @@ const syncGalleryThumbnails = (thumbnails, index) => {
 // Narrow columns keep the square photo slots short, leaving room for the
 // description inside the fixed embed height.
 const GALLERY_PER_PAGE = 4;
-const GALLERY_PER_PAGE_MOBILE = 2;
+// One full-width main photo on mobile; thumbnails still switch which photo shows.
+const GALLERY_PER_PAGE_MOBILE = 1;
 // Six 48px thumbnails plus gaps fit one row on a phone; more would wrap and
 // eat the description's space.
 const GALLERY_MAX_PHOTOS_MOBILE = 6;
@@ -437,9 +438,7 @@ const initGallery = (photos, animalName) => {
         updateOnMove: true,
         breakpoints: {
             768: {
-                perPage: photos.length === 1
-                    ? GALLERY_PER_PAGE_MOBILE
-                    : Math.min(GALLERY_PER_PAGE_MOBILE, photos.length),
+                perPage: Math.min(GALLERY_PER_PAGE_MOBILE, photos.length),
             },
         },
         i18n: {

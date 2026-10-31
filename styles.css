@@ -648,6 +648,10 @@ fieldset {
         margin-bottom: 16px;
     }
 
+    .animal-detail__photo-slot {
+        max-height: none;
+    }
+
     .animal-detail__thumbnails {
         justify-content: flex-start;
         margin-top: 8px;
