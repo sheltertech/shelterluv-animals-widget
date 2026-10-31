@@ -289,7 +289,7 @@ fieldset {
 
 .animal-detail__gallery-main {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(var(--gallery-columns, 3), minmax(0, 1fr));
     gap: 8px;
 }
 
@@ -299,11 +299,16 @@ fieldset {
     background: #f5f5f5;
 }
 
+.animal-detail__photo-slot[data-gallery-index] {
+    cursor: zoom-in;
+}
+
 .animal-detail__photo {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    pointer-events: none;
 }
 
 .animal-detail__photo-placeholder {
@@ -530,7 +535,7 @@ fieldset {
     }
 
     .animal-detail__gallery-main {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .animal-detail__thumbnails {

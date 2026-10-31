@@ -311,6 +311,35 @@ const buildAttributesHtml = (attributes = []) => {
     `;
 };
 
+const GALLERY_MOBILE_MQ = '(max-width: 768px)';
+
+const getGalleryWindowSize = () => (
+    window.matchMedia(GALLERY_MOBILE_MQ).matches ? 1 : 3
+);
+
+const buildGallerySlotsHtml = (photos, animalName, offset, windowSize) => {
+    const visiblePhotos = photos.slice(offset, offset + windowSize);
+
+    return visiblePhotos.map((photo, index) => {
+        const photoIndex = offset + index;
+        const alt = animalName
+            ? `${animalName} photo ${photoIndex + 1}`
+            : `Photo ${photoIndex + 1}`;
+
+        return `
+          <div
+            class="animal-detail__photo-slot"
+            data-gallery-index="${photoIndex}"
+            role="button"
+            tabindex="0"
+            aria-label="Enlarge photo ${photoIndex + 1}"
+          >
+            <img class="animal-detail__photo" src="${photo.url}" alt="${alt}">
+          </div>
+        `;
+    }).join('');
+};
+
 const buildGalleryHtml = (photos, animalName) => {
     if (!photos.length) {
         return `
@@ -324,20 +353,16 @@ const buildGalleryHtml = (photos, animalName) => {
         `;
     }
 
-    const initialVisible = photos.slice(0, Math.min(3, photos.length));
+    const windowSize = Math.min(getGalleryWindowSize(), photos.length);
 
     return `
       <div class="animal-detail__gallery">
         <div
           class="animal-detail__gallery-main"
           id="galleryMain"
-          style="grid-template-columns: repeat(${initialVisible.length}, minmax(0, 1fr));"
+          style="--gallery-columns: ${windowSize};"
         >
-          ${initialVisible.map((photo, index) => `
-            <div class="animal-detail__photo-slot" data-gallery-index="${index}">
-              <img class="animal-detail__photo" src="${photo.url}" alt="${animalName} photo ${index + 1}">
-            </div>
-          `).join('')}
+          ${buildGallerySlotsHtml(photos, animalName, 0, windowSize)}
         </div>
         ${photos.length > 1 ? `
           <div class="animal-detail__thumbnails">
@@ -356,6 +381,41 @@ const buildGalleryHtml = (photos, animalName) => {
       </div>
     `;
 };
+
+const imageSizeCache = new Map();
+
+const getImageSize = (src) => {
+    if (imageSizeCache.has(src)) {
+        return Promise.resolve(imageSizeCache.get(src));
+    }
+
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const size = { width: img.naturalWidth || 1200, height: img.naturalHeight || 1200 };
+            imageSizeCache.set(src, size);
+            resolve(size);
+        };
+        img.onerror = () => {
+            const size = { width: 1200, height: 1200 };
+            imageSizeCache.set(src, size);
+            resolve(size);
+        };
+        img.src = src;
+    });
+};
+
+const buildPhotoSwipeDataSource = async (photos, animalName) => (
+    Promise.all(photos.map(async (photo, index) => {
+        const size = await getImageSize(photo.url);
+        return {
+            src: photo.url,
+            width: size.width,
+            height: size.height,
+            alt: animalName ? `${animalName} photo ${index + 1}` : `Photo ${index + 1}`,
+        };
+    }))
+);
 
 const SOCIAL_ICONS = {
     email: `
@@ -527,29 +587,82 @@ const buildActionsHtml = (firstName, adoptionUrl, donateUrl, sponsorUrl, animalN
     `;
 };
 
-const initGallery = (photos) => {
-    if (photos.length <= 1) {
+const initPhotoSwipe = (photos, animalName) => {
+    if (!photos.length || typeof PhotoSwipeLightbox === 'undefined' || typeof PhotoSwipe === 'undefined') {
+        return null;
+    }
+
+    const lightbox = new PhotoSwipeLightbox({
+        dataSource: photos.map((photo, index) => ({
+            src: photo.url,
+            width: 1200,
+            height: 1200,
+            alt: animalName ? `${animalName} photo ${index + 1}` : `Photo ${index + 1}`,
+        })),
+        pswpModule: PhotoSwipe,
+        bgClickAction: 'close',
+        tapAction: (point, event) => {
+            if (event.target.classList.contains('pswp__img')) {
+                return;
+            }
+            lightbox.pswp?.close();
+        },
+    });
+    lightbox.init();
+
+    const ready = buildPhotoSwipeDataSource(photos, animalName).then((dataSource) => {
+        lightbox.options.dataSource = dataSource;
+        return lightbox;
+    });
+
+    return { lightbox, ready };
+};
+
+const bindLightboxTriggers = (photoSwipe) => {
+    const galleryMain = document.getElementById('galleryMain');
+    if (!galleryMain || !photoSwipe) {
         return;
     }
 
+    const { lightbox, ready } = photoSwipe;
+
+    galleryMain.querySelectorAll('[data-gallery-index]').forEach((slot) => {
+        const openAtIndex = async () => {
+            await ready;
+            lightbox.loadAndOpen(Number(slot.dataset.galleryIndex));
+        };
+
+        slot.addEventListener('click', openAtIndex);
+        slot.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openAtIndex();
+            }
+        });
+    });
+};
+
+const initGallery = (photos, animalName, photoSwipe) => {
     const galleryMain = document.getElementById('galleryMain');
+    if (!galleryMain || !photos.length) {
+        return;
+    }
+
     const thumbnails = document.querySelectorAll('.animal-detail__thumbnail');
+    let currentOffset = 0;
 
     const updateGallery = (startIndex) => {
-        const maxStart = Math.max(0, photos.length - 3);
-        const offset = Math.min(startIndex, maxStart);
-        const visiblePhotos = photos.slice(offset, offset + 3);
+        const windowSize = Math.min(getGalleryWindowSize(), photos.length);
+        const maxStart = Math.max(0, photos.length - windowSize);
+        currentOffset = Math.min(startIndex, maxStart);
 
-        galleryMain.style.gridTemplateColumns = `repeat(${visiblePhotos.length}, minmax(0, 1fr))`;
-        galleryMain.innerHTML = visiblePhotos.map((photo, index) => `
-          <div class="animal-detail__photo-slot" data-gallery-index="${offset + index}">
-            <img class="animal-detail__photo" src="${photo.url}" alt="Photo ${offset + index + 1}">
-          </div>
-        `).join('');
+        galleryMain.style.setProperty('--gallery-columns', String(windowSize));
+        galleryMain.innerHTML = buildGallerySlotsHtml(photos, animalName, currentOffset, windowSize);
+        bindLightboxTriggers(photoSwipe);
 
         thumbnails.forEach((button) => {
             const photoIndex = Number(button.dataset.photoIndex);
-            button.classList.toggle('animal-detail__thumbnail--active', photoIndex === offset);
+            button.classList.toggle('animal-detail__thumbnail--active', photoIndex === currentOffset);
         });
     };
 
@@ -558,6 +671,19 @@ const initGallery = (photos) => {
             updateGallery(Number(button.dataset.photoIndex));
         });
     });
+
+    bindLightboxTriggers(photoSwipe);
+
+    const mobileQuery = window.matchMedia(GALLERY_MOBILE_MQ);
+    const onViewportChange = () => {
+        updateGallery(currentOffset);
+    };
+
+    if (typeof mobileQuery.addEventListener === 'function') {
+        mobileQuery.addEventListener('change', onViewportChange);
+    } else if (typeof mobileQuery.addListener === 'function') {
+        mobileQuery.addListener(onViewportChange);
+    }
 };
 
 const renderAnimalDetail = (animal, backUrl, nid) => {
@@ -600,7 +726,8 @@ const renderAnimalDetail = (animal, backUrl, nid) => {
       </div>
     `;
 
-    initGallery(photos);
+    const photoSwipe = initPhotoSwipe(photos, animal.name);
+    initGallery(photos, animal.name, photoSwipe);
     initSocialShare();
 };
 
