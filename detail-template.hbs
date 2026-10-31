@@ -19,7 +19,13 @@
           <ul class="splide__list">
             {{#each photos}}
             <li class="splide__slide">
-              <div class="animal-detail__photo-slot">
+              <div
+                class="animal-detail__photo-slot"
+                data-gallery-index="{{index}}"
+                role="button"
+                tabindex="0"
+                aria-label="Enlarge photo {{displayIndex}}"
+              >
                 <img class="animal-detail__photo" src="{{url}}" alt="{{../name}} photo {{displayIndex}}">
               </div>
             </li>

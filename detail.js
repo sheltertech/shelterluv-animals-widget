@@ -1,6 +1,9 @@
 import Handlebars from 'handlebars';
 import Splide from '@splidejs/splide';
+import PhotoSwipeLightbox from 'photoswipe/lightbox';
+import PhotoSwipe from 'photoswipe';
 import '@splidejs/splide/css';
+import 'photoswipe/style.css';
 import 'social-share-kit/dist/css/social-share-kit.css';
 import './styles.css';
 import detailTemplateSource from './detail-template.hbs?raw';
@@ -303,7 +306,115 @@ const getGalleryPhotos = (animal) => {
         : photos;
 };
 
-const initGallery = (photos) => {
+const imageSizeCache = new Map();
+
+const getImageSize = (src) => {
+    if (imageSizeCache.has(src)) {
+        return Promise.resolve(imageSizeCache.get(src));
+    }
+
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const size = { width: img.naturalWidth || 1200, height: img.naturalHeight || 1200 };
+            imageSizeCache.set(src, size);
+            resolve(size);
+        };
+        img.onerror = () => {
+            const size = { width: 1200, height: 1200 };
+            imageSizeCache.set(src, size);
+            resolve(size);
+        };
+        img.src = src;
+    });
+};
+
+const buildPhotoSwipeDataSource = async (photos, animalName) => (
+    Promise.all(photos.map(async (photo, index) => {
+        const size = await getImageSize(photo.url);
+        return {
+            src: photo.url,
+            width: size.width,
+            height: size.height,
+            alt: animalName ? `${animalName} photo ${index + 1}` : `Photo ${index + 1}`,
+        };
+    }))
+);
+
+const initPhotoSwipe = (photos, animalName) => {
+    if (!photos.length) {
+        return null;
+    }
+
+    const lightbox = new PhotoSwipeLightbox({
+        dataSource: photos.map((photo, index) => ({
+            src: photo.url,
+            width: 1200,
+            height: 1200,
+            alt: animalName ? `${animalName} photo ${index + 1}` : `Photo ${index + 1}`,
+        })),
+        pswpModule: PhotoSwipe,
+        bgClickAction: 'close',
+        tapAction: (point, event) => {
+            if (event.target.classList.contains('pswp__img')) {
+                return;
+            }
+            lightbox.pswp?.close();
+        },
+    });
+    lightbox.init();
+
+    const ready = buildPhotoSwipeDataSource(photos, animalName).then((dataSource) => {
+        lightbox.options.dataSource = dataSource;
+        return lightbox;
+    });
+
+    return { lightbox, ready };
+};
+
+const bindLightboxTriggers = (photoSwipe) => {
+    const root = document.getElementById('galleryMain');
+    if (!root || !photoSwipe) {
+        return;
+    }
+
+    const { lightbox, ready } = photoSwipe;
+    const dragThreshold = 8;
+
+    root.querySelectorAll('[data-gallery-index]').forEach((slot) => {
+        let pointerStart = null;
+
+        slot.addEventListener('pointerdown', (event) => {
+            pointerStart = { x: event.clientX, y: event.clientY };
+        });
+
+        const openAtIndex = async () => {
+            await ready;
+            lightbox.loadAndOpen(Number(slot.dataset.galleryIndex));
+        };
+
+        slot.addEventListener('click', (event) => {
+            if (pointerStart) {
+                const moved = Math.abs(event.clientX - pointerStart.x) > dragThreshold
+                    || Math.abs(event.clientY - pointerStart.y) > dragThreshold;
+                pointerStart = null;
+                if (moved) {
+                    return;
+                }
+            }
+            openAtIndex();
+        });
+
+        slot.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                openAtIndex();
+            }
+        });
+    });
+};
+
+const initGallery = (photos, animalName) => {
     const root = document.getElementById('galleryMain');
     if (!root || photos.length === 0) {
         return;
@@ -311,6 +422,7 @@ const initGallery = (photos) => {
 
     const hasMultiple = photos.length > 1;
     const thumbnails = document.querySelectorAll('.animal-detail__thumbnail');
+    const photoSwipe = initPhotoSwipe(photos, animalName);
 
     const splide = new Splide(root, {
         type: hasMultiple ? 'loop' : 'slide',
@@ -344,6 +456,9 @@ const initGallery = (photos) => {
     };
 
     splide.on('mounted move', updateThumbnails);
+    splide.on('mounted', () => {
+        bindLightboxTriggers(photoSwipe);
+    });
 
     thumbnails.forEach((button) => {
         button.addEventListener('click', () => {
@@ -404,7 +519,7 @@ const renderAnimalDetail = (animal, backUrl, nid) => {
     const templateData = buildDetailTemplateData(animal, backUrl, nid);
     document.title = `${animal.name} - Available for Adoption`;
     document.getElementById('detail-output').innerHTML = detailTemplate(templateData);
-    initGallery(photos);
+    initGallery(photos, animal.name);
     initSocialShare({
         shareUrl: templateData.shareUrl,
         shareText: templateData.shareText,
